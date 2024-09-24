@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 import warnings
+import cv2
 
 def add_gaussian_noise(image, noise_level=0.1):
     img_array = np.array(image)
@@ -68,3 +69,41 @@ def anisodiff(img, niter=1, kappa=50, gamma=0.1, step=(1., 1.), option=1, ploton
         imgout += gamma * (NS + EW)
 
     return np.clip(imgout, 0, 255).astype(np.uint8)
+
+import cv2
+
+def coherence_filter_image(image, sigma=11, str_sigma=11, blend=0.5, iter_n=4):
+    img = image.copy()
+    h, w = img.shape[:2]
+
+    for i in range(iter_n):
+        # Vérifie si l'image a 3 canaux (couleur) ou 1 canal (niveaux de gris)
+        if len(img.shape) == 3 and img.shape[2] == 3:
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        else:
+            gray = img  # Si l'image est déjà en niveaux de gris
+        
+        # Calcul des valeurs propres (eigenvalues) et vecteurs propres (eigenvectors)
+        eigen = cv2.cornerEigenValsAndVecs(gray, str_sigma, 3)
+        eigen = eigen.reshape(h, w, 3, 2)
+        x, y = eigen[:, :, 1, 0], eigen[:, :, 1, 1]
+
+        # Calcul des dérivées secondes
+        gxx = cv2.Sobel(gray, cv2.CV_32F, 2, 0, ksize=sigma)
+        gxy = cv2.Sobel(gray, cv2.CV_32F, 1, 1, ksize=sigma)
+        gyy = cv2.Sobel(gray, cv2.CV_32F, 0, 2, ksize=sigma)
+        
+        # Calcul de la diffusion guidée par les valeurs propres
+        gvv = x * x * gxx + 2 * x * y * gxy + y * y * gyy
+        m = gvv < 0
+
+        # Erosion et dilatation
+        ero = cv2.erode(img, None)
+        dil = cv2.dilate(img, None)
+        img1 = ero
+        img1[m] = dil[m]
+
+        # Mélange de l'image originale et de l'image traitée
+        img = np.uint8(img * (1.0 - blend) + img1 * blend)
+    
+    return img
