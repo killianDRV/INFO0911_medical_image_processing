@@ -1,0 +1,4 @@
+shiny
+numpy
+Pillow
+scikit-image

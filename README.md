@@ -1,9 +1,13 @@
 # INFO0911_medical_image_processing
 
+
+```bash
+pip install -r requirements.txt
+```
+
 ```bash
 shiny run app.py
 ```
-
 
 ***
 ## Score
