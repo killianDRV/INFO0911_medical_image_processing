@@ -5,6 +5,10 @@ import io
 import numpy as np
 from PIL import Image
 from utils import *
+from skimage.metrics import peak_signal_noise_ratio as psnr
+from skimage.metrics import mean_squared_error as mse
+from skimage.metrics import structural_similarity as ssim
+
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -57,6 +61,7 @@ def server(input, output, session):
             file_path = Path(file["datapath"])
             with open(file_path, "rb") as img_file:
                 img = Image.open(img_file).convert('L')  # Convert to grayscale
+                img_array = np.array(img)
                 
                 # Apply noise to the image
                 noisy_img_sp = add_salt_and_pepper_noise(img, noise_params.get()["sp"])
@@ -81,6 +86,21 @@ def server(input, output, session):
                                                   kappa=anisodiff_params.get()["kappa"],
                                                   gamma=anisodiff_params.get()["gamma"])
 
+                # Calculate scores
+                def calculate_scores(original, compared):
+                    psnr_score = psnr(original, compared)
+                    mse_score = mse(original, compared)
+                    ssim_score, _ = ssim(original, compared, full=True)
+                    return f"<br>PSNR: {psnr_score:.2f}<br>MSE: {mse_score:.2f}<br>SSIM: {ssim_score:.2f}"
+
+                sp_scores = calculate_scores(img_array, img_array_sp)
+                gaussian_scores = calculate_scores(img_array, img_array_gaussian)
+                speckle_scores = calculate_scores(img_array, img_array_speckle)
+
+                sp_denoised_scores = calculate_scores(img_array, anisodiff_img_sp)
+                gaussian_denoised_scores = calculate_scores(img_array, anisodiff_img_gaussian)
+                speckle_denoised_scores = calculate_scores(img_array, anisodiff_img_speckle)
+
                 # Convert images to base64
                 def image_to_base64(image):
                     buffered = io.BytesIO()
@@ -88,34 +108,48 @@ def server(input, output, session):
                     return base64.b64encode(buffered.getvalue()).decode()
 
                 img_base64 = image_to_base64(img)
-                noisy_img_sp_base64 = image_to_base64(noisy_img_sp)
-                noisy_img_gaussian_base64 = image_to_base64(noisy_img_gaussian)
-                noisy_img_speckle_base64 = image_to_base64(noisy_img_speckle)
+                noisy_img_sp_base64 = image_to_base64(Image.fromarray(img_array_sp))
+                noisy_img_gaussian_base64 = image_to_base64(Image.fromarray(img_array_gaussian))
+                noisy_img_speckle_base64 = image_to_base64(Image.fromarray(img_array_speckle))
 
-                anisodiff_img_sp_pil = Image.fromarray(anisodiff_img_sp)
-                anisodiff_img_gaussian_pil = Image.fromarray(anisodiff_img_gaussian)
-                anisodiff_img_speckle_pil = Image.fromarray(anisodiff_img_speckle)
-
-                anisodiff_img_sp_base64 = image_to_base64(anisodiff_img_sp_pil)
-                anisodiff_img_gaussian_base64 = image_to_base64(anisodiff_img_gaussian_pil)
-                anisodiff_img_speckle_base64 = image_to_base64(anisodiff_img_speckle_pil)
+                anisodiff_img_sp_base64 = image_to_base64(Image.fromarray(anisodiff_img_sp))
+                anisodiff_img_gaussian_base64 = image_to_base64(Image.fromarray(anisodiff_img_gaussian))
+                anisodiff_img_speckle_base64 = image_to_base64(Image.fromarray(anisodiff_img_speckle))
 
             images.append(
                 ui.div(
                     ui.row(
                         ui.column(4, ui.tags.img(src=f"data:image/png;base64,{img_base64}", style="max-width: 200px; margin: 10px;")),
-                        ui.column(4, ui.tags.img(src=f"data:image/png;base64,{noisy_img_sp_base64}", style="max-width: 200px; margin: 10px;")),
-                        ui.column(4, ui.tags.img(src=f"data:image/png;base64,{anisodiff_img_sp_base64}", style="max-width: 200px; margin: 10px;"))    
+                        ui.column(4, [
+                            ui.tags.img(src=f"data:image/png;base64,{noisy_img_sp_base64}", style="max-width: 200px; margin: 10px;"),
+                            ui.HTML(sp_scores)
+                        ]),
+                        ui.column(4, [
+                            ui.tags.img(src=f"data:image/png;base64,{anisodiff_img_sp_base64}", style="max-width: 200px; margin: 10px;"),
+                            ui.HTML(sp_denoised_scores)
+                        ])    
                     ),
                     ui.row(
                         ui.column(4, ""),
-                        ui.column(4, ui.tags.img(src=f"data:image/png;base64,{noisy_img_gaussian_base64}", style="max-width: 200px; margin: 10px;")),
-                        ui.column(4, ui.tags.img(src=f"data:image/png;base64,{anisodiff_img_gaussian_base64}", style="max-width: 200px; margin: 10px;"))    
+                        ui.column(4, [
+                            ui.tags.img(src=f"data:image/png;base64,{noisy_img_gaussian_base64}", style="max-width: 200px; margin: 10px;"),
+                            ui.HTML(gaussian_scores)
+                        ]),
+                        ui.column(4, [
+                            ui.tags.img(src=f"data:image/png;base64,{anisodiff_img_gaussian_base64}", style="max-width: 200px; margin: 10px;"),
+                            ui.HTML(gaussian_denoised_scores)
+                        ])    
                     ),
                     ui.row(
                         ui.column(4, ""),
-                        ui.column(4, ui.tags.img(src=f"data:image/png;base64,{noisy_img_speckle_base64}", style="max-width: 200px; margin: 10px;")),
-                        ui.column(4, ui.tags.img(src=f"data:image/png;base64,{anisodiff_img_speckle_base64}", style="max-width: 200px; margin: 10px;"))    
+                        ui.column(4, [
+                            ui.tags.img(src=f"data:image/png;base64,{noisy_img_speckle_base64}", style="max-width: 200px; margin: 10px;"),
+                            ui.HTML(speckle_scores)
+                        ]),
+                        ui.column(4, [
+                            ui.tags.img(src=f"data:image/png;base64,{anisodiff_img_speckle_base64}", style="max-width: 200px; margin: 10px;"),
+                            ui.HTML(speckle_denoised_scores)
+                        ])    
                     )
                 )  
             )            
