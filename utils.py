@@ -70,8 +70,6 @@ def anisodiff(img, niter=1, kappa=50, gamma=0.1, step=(1., 1.), option=1, ploton
 
     return np.clip(imgout, 0, 255).astype(np.uint8)
 
-import cv2
-
 def coherence_filter_image(image, sigma=11, str_sigma=11, blend=0.5, iter_n=4):
     img = image.copy()
     h, w = img.shape[:2]
