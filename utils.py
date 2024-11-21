@@ -105,3 +105,44 @@ def coherence_filter_image(image, sigma=11, str_sigma=11, blend=0.5, iter_n=4):
         img = np.uint8(img * (1.0 - blend) + img1 * blend)
     
     return img
+
+
+def formate_image(image):
+    margin = 50
+    height, width = image.shape[:2]
+
+    cropped_image = image[margin:height-margin, margin:width-margin]
+
+    return cropped_image
+
+def find_contours(image, threshold):
+
+    equalized_image = cv2.equalizeHist(image)
+
+    blurred_image = cv2.GaussianBlur(equalized_image, (5, 5), 0)
+
+    binary_image = cv2.adaptiveThreshold(blurred_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+
+    contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    if contours:
+        largest_contour = max(contours, key=cv2.contourArea)
+
+        pleural_line_image = np.zeros_like(image)
+        cv2.drawContours(pleural_line_image, [largest_contour], -1, (255), thickness=cv2.FILLED)
+
+        _, binary_below = cv2.threshold(image, threshold, 255, cv2.THRESH_BINARY)
+
+        contours_below, _ = cv2.findContours(binary_below, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        output_below = np.zeros_like(image)
+
+        cv2.drawContours(output_below, contours_below, -1, (255), thickness=cv2.FILLED)
+
+        return output_below
+    else:
+        print("Aucun contour trouvé.")
+
+
+
+
