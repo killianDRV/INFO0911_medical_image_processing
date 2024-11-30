@@ -6,3 +6,9 @@ Patients.zip
 
 # Python cache
 /__pycache__/
+
+
+### UV
+.python-version
+pyproject.toml
+uv.lock
