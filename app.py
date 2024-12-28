@@ -94,9 +94,9 @@ def server(input, output, session):
             elif method == "coherence_enhancing":
                 elements.extend([
                     ui.h3("Coherence Enhancing"),
-                    ui.input_numeric("i_sigma", "Sigma", value=1, step=0.1, min=0.5, max=3),
-                    ui.input_numeric("i_str_sigma", "STR Sigma", value=11, min=0, max=1, step=0.01),
-                    ui.input_numeric("i_blend", "Bend", value=0.5, min=1, max=0.25, step=0.05),
+                    ui.input_numeric("i_sigma", "Sigma", value=1, step=2, min=1, max=31),
+                    ui.input_numeric("i_str_sigma", "STR Sigma", value=2, min=1, max=10, step=1),
+                    ui.input_numeric("i_blend", "Bend", value=0.5, min=0.25, max=1, step=0.05),
                     ui.input_numeric("i_iter_n", "Itérations", value=4, min=1, step=1),
                     # ui.input_numeric("i_c", "C", value=1e-10, min=1, step=1),
                     ui.hr(),
