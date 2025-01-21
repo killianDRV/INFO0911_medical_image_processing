@@ -1,15 +1,11 @@
-foo.jpg
-
 Patients.zip
 /Patients
 /base_image
 
+*.ipynb
+
 # Python cache
 /__pycache__/
-
-# Venv
-env/
-venv/
 
 ### UV
 .python-version
