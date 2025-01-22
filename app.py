@@ -1,29 +1,9 @@
 from shiny import App, render, ui, reactive
 from pathlib import Path
-import base64
-import io
 import numpy as np
-from PIL import Image
+
 from utils import *
-from skimage.metrics import peak_signal_noise_ratio as psnr
-from skimage.metrics import mean_squared_error as mse
-from skimage.metrics import structural_similarity as ssim
 
-def calculate_scores(original, compared):
-    psnr_score = psnr(original, compared)
-    mse_score = mse(original, compared)
-    ssim_score, _ = ssim(original, compared, full=True)
-    return f"<br>PSNR: {psnr_score:.2f}<br>MSE: {mse_score:.2f}<br>SSIM: {ssim_score:.2f}"
-
-def cv2_to_base64(image):
-    buffered = io.BytesIO()
-    image.save(buffered, format="PNG")
-    return base64.b64encode(buffered.getvalue()).decode()
-
-def cv2_to_base64(image):
-    _, buffer = cv2.imencode('.png', image)
-    return base64.b64encode(buffer).decode('utf-8')
-    
 app_ui = ui.page_sidebar(
     ui.sidebar(
         ui.input_file("i_images", "Sélectionnez vos images", accept=[".png", ".jpg", ".jpeg"], multiple=True),
@@ -47,9 +27,24 @@ app_ui = ui.page_sidebar(
 )
 
 def server(input, output, session):
+    """
+    Defines server logic for the Shiny application.
+    
+    Args:
+        input: Object containing all user inputs
+        output: Object for defining reactive outputs
+        session: Object representing current user session
+    """
+
     @output
     @render.ui
     def dynamic_bruitage():
+        """
+        Generates dynamic UI for noise parameters settings.
+        
+        Returns:
+            ui.input_numeric: A numeric input widget adapted to the selected noise type
+        """
         selected_bruitage = input.i_bruitage()   
         if selected_bruitage == "sel_poivre":
             return ui.input_numeric("i_bruit_coef", "Coefficient Sel & Poivre", value=0.25, min=0, max=1, step=0.01)
@@ -61,11 +56,16 @@ def server(input, output, session):
     @output
     @render.ui
     def dynamic_sidebar():
-        # Liste des éléments dynamiques
+        """
+        Generates dynamic sidebar based on selected methods.
+        
+        Returns:
+            list: A list of UI elements for the sidebar, including specific parameters for each selected image processing method
+        """
         elements = []
         selected_methods = input.method_choice()
 
-        # Ajouter des champs dynamiquement en fonction de la sélection
+        # Cchamps dynamique en fonction de la sélection
         for method in selected_methods:
             if method == "bruitage":
                 elements.extend([
@@ -106,16 +106,23 @@ def server(input, output, session):
                 elements.extend([
                     ui.h3("Find Contours"),
                     ui.input_numeric("i_contours_min", "Seuil min", value=35, step=1, min=0, max=100),
-                    ui.input_numeric("i_contours_max", "Seuil max", value=40, step=1, min=0, max=100)
+                    ui.input_numeric("i_contours_max", "Seuil max", value=45, step=1, min=0, max=100)
                 ])
         
-        # Retourner les éléments générés dynamiquement
         return elements
         
     @output
     @render.ui
     @reactive.event(input.i_images, input.update_noise)
     def resultats():
+        """
+        Generates UI to display image processing results.
+        
+        This function processes uploaded images by applying selected methods and displays results side by side with the original image.
+        
+        Returns:
+            ui.div: A container with original and processed images, organized in columns, including image quality scores for each processing method
+        """
         files = input.i_images()
         if files is None or len(files) < 1:
             return None
@@ -178,17 +185,6 @@ def server(input, output, session):
                         blend,
                         iter_n
                     )
-
-                # FIND-CONTOURS
-                # if method == "find_contours":
-                #     rows = []
-                #     column = []
-                #     for threshold in range(find_contours_params.get()["threshold_min"], find_contours_params.get()["threshold_max"]):
-                #         img_after = find_contours(img_before, threshold)
-                #         sp_scores = calculate_scores(cv2_img, img_after)
-                #         rows.append(ui.row(ui.tags.img(src=f"data:image/png;base64,{cv2_to_base64(img_after)}", style="max-width: 200px; margin: 10px;"),ui.HTML(sp_scores + "\n test")))
-                #     column.append(rows)
-                #     columns.append(column)
 
                 # FIND-CONTOURS
                 if method == "find_contours":

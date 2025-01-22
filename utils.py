@@ -2,8 +2,22 @@ import numpy as np
 from PIL import Image
 import warnings
 import cv2
+import base64
+from skimage.metrics import peak_signal_noise_ratio as psnr
+from skimage.metrics import mean_squared_error as mse
+from skimage.metrics import structural_similarity as ssim
 
 def add_gaussian_noise(image, noise_level=0.1):
+    """
+    Add Gaussian noise to an image.
+    
+    Args:
+        image (numpy.ndarray): Input image.
+        noise_level (float): Standard deviation of the Gaussian noise. Default is 0.1.
+        
+    Returns:
+        numpy.ndarray: Image with added Gaussian noise.
+    """
     img_array = np.array(image)
     noise = np.random.normal(loc=0, scale=noise_level, size=img_array.shape)
     noisy_img = img_array + noise * 255
@@ -11,6 +25,16 @@ def add_gaussian_noise(image, noise_level=0.1):
     return Image.fromarray(noisy_img, mode='L')
 
 def add_salt_and_pepper_noise(image, prob=0.05):
+    """
+    Add salt and pepper noise to an image.
+    
+    Args:
+        image (numpy.ndarray): Input image.
+        prob (float): Probability of a pixel being affected by noise. Default is 0.05.
+        
+    Returns:
+        numpy.ndarray: Image with added salt and pepper noise.
+    """
     img_array = np.array(image)
     salt_pepper_noise = np.random.rand(*img_array.shape)
     img_array[salt_pepper_noise < prob / 2] = 0
@@ -18,6 +42,16 @@ def add_salt_and_pepper_noise(image, prob=0.05):
     return Image.fromarray(img_array, mode='L')
 
 def add_speckle_noise(image, noise_level=0.1):
+    """
+    Add speckle noise to an image.
+    
+    Args:
+        image (numpy.ndarray): Input image.
+        noise_level (float): Standard deviation of the multiplicative noise. Default is 0.1.
+        
+    Returns:
+        numpy.ndarray: Image with added speckle noise.
+    """
     img_array = np.array(image).astype(float) / 255.0
     noise = np.random.normal(loc=0, scale=noise_level, size=img_array.shape)
     noisy_img = img_array + img_array * noise
@@ -26,6 +60,20 @@ def add_speckle_noise(image, noise_level=0.1):
 
 
 def anisodiff(img, niter=1, kappa=50, gamma=0.1, step=(1., 1.), option=1, ploton=False):
+    """
+    Add Perona-Malik anisotropic diffusion filter.
+    
+    Args:
+        img (numpy.ndarray): Input image
+        niter (int): Number of iterations
+        kappa (float): Edge sensitivity parameter
+        gamma (float): Learning rate
+        step (tuple): No diffusion
+        option (int): Diffusion function type (1 or 2)
+        
+    Returns:
+        numpy.ndarray: Filtered image
+    """
     if img.ndim == 3:
         warnings.warn("Only grayscale images allowed, converting to 2D matrix")
         img = img.mean(2)
@@ -71,6 +119,19 @@ def anisodiff(img, niter=1, kappa=50, gamma=0.1, step=(1., 1.), option=1, ploton
     return np.clip(imgout, 0, 255).astype(np.uint8)
 
 def coherence_filter_image(image, sigma=11, str_sigma=11, blend=0.5, iter_n=4):
+    """
+    Apply a coherence-enhancing filter to an image.
+    
+    Args:
+        image (numpy.ndarray): Input image.
+        sigma (int): Standard deviation for Gaussian smoothing. Default is 11.
+        str_sigma (int): Structure tensor integration scale. Default is 11.
+        blend (float): Blending factor between original and filtered image. Default is 0.5.
+        iter_n (int): Number of iterations. Default is 4.
+        
+    Returns:
+        numpy.ndarray: Filtered image with enhanced coherent structures.
+    """
     img = image.copy()
     h, w = img.shape[:2]
 
@@ -106,8 +167,16 @@ def coherence_filter_image(image, sigma=11, str_sigma=11, blend=0.5, iter_n=4):
     
     return img
 
-
 def formate_image(image):
+    """
+    Crop margins from an image.
+    
+    Args:
+        image (numpy.ndarray): Input image.
+        
+    Returns:
+        numpy.ndarray: Cropped image with 50-pixel margins removed from each side.
+    """
     margin = 50
     height, width = image.shape[:2]
 
@@ -116,7 +185,16 @@ def formate_image(image):
     return cropped_image
 
 def find_contours(image, threshold):
-
+    """
+    Find and draw contours in an image based on adaptive thresholding.
+    
+    Args:
+        image (numpy.ndarray): Input grayscale image.
+        threshold (int): Threshold value for binary thresholding.
+        
+    Returns:
+        numpy.ndarray: Binary image with filled contours below the specified threshold.
+    """
     equalized_image = cv2.equalizeHist(image)
 
     blurred_image = cv2.GaussianBlur(equalized_image, (5, 5), 0)
@@ -143,6 +221,31 @@ def find_contours(image, threshold):
     else:
         print("Aucun contour trouvé.")
 
+def calculate_scores(original, compared):
+    """
+    Calculate image quality metrics between original and compared images.
+    
+    Args:
+        original (numpy.ndarray): Original reference image.
+        compared (numpy.ndarray): Image to compare against the original.
+        
+    Returns:
+        str: HTML-formatted string containing PSNR, MSE, and SSIM scores.
+    """
+    psnr_score = psnr(original, compared)
+    mse_score = mse(original, compared)
+    ssim_score, _ = ssim(original, compared, full=True)
+    return f"<br>PSNR: {psnr_score:.2f}<br>MSE: {mse_score:.2f}<br>SSIM: {ssim_score:.2f}"
 
-
-
+def cv2_to_base64(image):
+    """
+    Convert an OpenCV image to base64 string representation.
+    
+    Args:
+        image (numpy.ndarray): OpenCV image to convert.
+        
+    Returns:
+        str: Base64 encoded string of the image in PNG format.
+    """
+    _, buffer = cv2.imencode('.png', image)
+    return base64.b64encode(buffer).decode('utf-8')
