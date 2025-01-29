@@ -1,6 +1,6 @@
 ---
 title: INFO0911_medical_image_processing
-authors: Killian DARVILLE, Kevin ARNOUDTS, Lucas BAILLY, Ylon LEHMAN, Loic BRZYCHCY
+authors: ARNOUDTS Kevin, BAILLY Lucas, DARVILLE Killian, BRZYCHCY Loic, LEHMAN Ylon
 date: 02/02/2025
 ---
 
@@ -67,8 +67,8 @@ Afin de comparer les différents résultats, 3 scores sont calculer. Ils sont le
 - **SSIM [(Structural similarity index measure)](https://en.wikipedia.org/wiki/Structural_similarity_index_measure)** : Plus il est proche de 1, plus la structure de l'image est plus proche de celle de l'image de référence.
 
 ## Auteurs
-- Kevin ARNOUDTS
-- Lucas BAILLY
-- Killian DARVILLE
-- Loic BRZYCHCY
-- Ylon LEHMAN
+- ARNOUDTS Kevin
+- BAILLY Lucas
+- DARVILLE Killian
+- BRZYCHCY Loic
+- LEHMAN Ylon
