@@ -1,9 +1,3 @@
----
-title: INFO0911_medical_image_processing
-authors: ARNOUDTS Kevin, BAILLY Lucas, DARVILLE Killian, BRZYCHCY Loic, LEHMAN Ylon
-date: 02/02/2025
----
-
 # INFO0911_medical_image_processing
 
 ## Table des matières
