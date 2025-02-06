@@ -22,7 +22,7 @@ python -m venv env
 
 Sous Windows :
 ```bash
-.\env\Scripts\activate
+env\Scripts\activate
 ```
 Sous MacOS :
 ```bash
