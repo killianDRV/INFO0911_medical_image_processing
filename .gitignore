@@ -2,8 +2,6 @@ Patients.zip
 /Patients
 /base_image
 
-*.ipynb
-
 # Python cache
 /__pycache__/
 

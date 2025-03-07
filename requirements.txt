@@ -1,5 +1,6 @@
-shiny
-numpy
-Pillow
-scikit-image
-opencv-python
+matplotlib>=3.10.1
+numpy>=2.1.3
+opencv-python>=4.10.0.84
+pillow>=11.0.0
+scikit-image>=0.24.0
+shiny>=1.2.1

@@ -7,7 +7,7 @@ from skimage.metrics import peak_signal_noise_ratio as psnr
 from skimage.metrics import mean_squared_error as mse
 from skimage.metrics import structural_similarity as ssim
 
-def add_gaussian_noise(image, noise_level=0.1):
+def add_gaussian_noise(image: np.ndarray, noise_level: float = 0.1) -> np.ndarray:
     """
     Add Gaussian noise to an image.
     
@@ -24,7 +24,7 @@ def add_gaussian_noise(image, noise_level=0.1):
     noisy_img = np.clip(noisy_img, 0, 255).astype(np.uint8)
     return Image.fromarray(noisy_img, mode='L')
 
-def add_salt_and_pepper_noise(image, prob=0.05):
+def add_salt_and_pepper_noise(image: np.ndarray, prob: float =0.05) -> np.ndarray:
     """
     Add salt and pepper noise to an image.
     
@@ -41,7 +41,7 @@ def add_salt_and_pepper_noise(image, prob=0.05):
     img_array[salt_pepper_noise > 1 - prob / 2] = 255
     return Image.fromarray(img_array, mode='L')
 
-def add_speckle_noise(image, noise_level=0.1):
+def add_speckle_noise(image: np.ndarray, noise_level: float =0.1) -> np.ndarray:
     """
     Add speckle noise to an image.
     
@@ -59,7 +59,7 @@ def add_speckle_noise(image, noise_level=0.1):
     return Image.fromarray(noisy_img, mode='L')
 
 
-def anisodiff(img, niter=1, kappa=50, gamma=0.1, step=(1., 1.), option=1, ploton=False):
+def anisodiff(img: np.ndarray, niter: int =1, kappa: float=50, gamma: float=0.1, step: tuple=(1., 1.), option: int=1) -> np.ndarray:
     """
     Add Perona-Malik anisotropic diffusion filter.
     
@@ -118,7 +118,7 @@ def anisodiff(img, niter=1, kappa=50, gamma=0.1, step=(1., 1.), option=1, ploton
 
     return np.clip(imgout, 0, 255).astype(np.uint8)
 
-def coherence_filter_image(image, sigma=11, str_sigma=11, blend=0.5, iter_n=4):
+def coherence_filter_image(image: np.ndarray, sigma: int=11, str_sigma: int=11, blend: float=0.5, iter_n: int=4) -> np.ndarray:
     """
     Apply a coherence-enhancing filter to an image.
     
@@ -167,7 +167,7 @@ def coherence_filter_image(image, sigma=11, str_sigma=11, blend=0.5, iter_n=4):
     
     return img
 
-def formate_image(image):
+def formate_image(image: np.ndarray) -> np.ndarray:
     """
     Crop margins from an image.
     
@@ -184,7 +184,7 @@ def formate_image(image):
 
     return cropped_image
 
-def find_contours(image, threshold):
+def find_contours(image: np.ndarray, threshold: int) -> np.ndarray:
     """
     Find and draw contours in an image based on adaptive thresholding.
     
@@ -221,7 +221,7 @@ def find_contours(image, threshold):
     else:
         print("Aucun contour trouvé.")
 
-def calculate_scores(original, compared):
+def calculate_scores(original: np.ndarray, compared: np.ndarray) -> str:
     """
     Calculate image quality metrics between original and compared images.
     
@@ -237,7 +237,7 @@ def calculate_scores(original, compared):
     ssim_score, _ = ssim(original, compared, full=True)
     return f"<br>PSNR: {psnr_score:.2f}<br>MSE: {mse_score:.2f}<br>SSIM: {ssim_score:.2f}"
 
-def cv2_to_base64(image):
+def cv2_to_base64(image: np.ndarray) -> str:
     """
     Convert an OpenCV image to base64 string representation.
     

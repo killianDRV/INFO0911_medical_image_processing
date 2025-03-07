@@ -4,6 +4,7 @@
 
 - **[Installation](#installation)**
 - **[Utilisation](#utilisation)**
+- **[Détection de contour](#détection-de-contour)**
 - **[Auteurs](#auteurs)**
 
 ## Installation
@@ -59,6 +60,9 @@ Afin de comparer les différents résultats, 3 scores sont calculer. Ils sont le
 - **PSNR [(Peak Signal to Noise Ratio)](https://fr.wikipedia.org/wiki/Peak_Signal_to_Noise_Ratio)** : Plus il est élevé, plus l'image est plus proche de l'image de référence.
 - **MSE [(Mean squared error)](https://en.wikipedia.org/wiki/Mean_squared_error)** : Plus il est faible, moins il y aura de différences par rapport à l'image de référence.
 - **SSIM [(Structural similarity index measure)](https://en.wikipedia.org/wiki/Structural_similarity_index_measure)** : Plus il est proche de 1, plus la structure de l'image est plus proche de celle de l'image de référence.
+
+## Détection de contour
+Le notebook `detection_de_contour.ipynb` permet de visualiser la détection de ligne pleurale et les lignes B, avec des méthodes basiques de détection de contour d'opencv.
 
 ## Auteurs
 - ARNOUDTS Kevin
