@@ -67,6 +67,6 @@ Le notebook `detection_de_contour.ipynb` permet de visualiser la détection de l
 ## Auteurs
 - ARNOUDTS Kevin
 - BAILLY Lucas
-- DARVILLE Killian
 - BRZYCHCY Loic
+- DARVILLE Killian
 - LEHMAN Ylon
